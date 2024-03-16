@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">HorseGame</string>
+
+    <string name="title">Horse Game</string>
+    <string name="level">Level</string>
+    <string name="moves">Moves</string>
+    <string name="lives">Lives</string>
+    <string name="time">Time</string>
+    <string name="options">Options</string>
+    <string name="instruction">Move the horse over the board to complete the game</string>
+    <string name="credits">Game created by Alvaro de la Rosa</string>
+
+    <string name="premium">Tap here to romve adds, get more levels and unlimited lives</string>
+    <string name="premiumTitle">Get Premium Access Forever</string>
+    <string name="benefit1">No more adds</string>
+    <string name="benefit2">Unlimited lives</string>
+    <string name="benefit3">Keep your reached levels</string>
+    <string name="pay">Pay only 1€ NOW</string>
+    <string name="next_level">Next Level</string>
+
 </resources>
