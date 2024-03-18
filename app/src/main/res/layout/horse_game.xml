@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/horse_game"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="@color/app_color_light"
-    tools:context=".MainActivity">
+    tools:context=".HorseGameActivity">
 
     <LinearLayout
         android:id="@+id/lyPremium"
@@ -189,10 +189,15 @@
                         android:layout_marginTop="5dp"
                         android:textSize="20sp"
                         android:padding="3dp"/>
-                    <View
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
-                        android:background="@color/contrast_data"/>
+                        android:max="4"
+                        android:progressTint="@color/contrast_data"/>
+
                     <TextView
                         android:id="@+id/tvOptionsNumber"
                         android:layout_width="match_parent"
@@ -885,7 +890,7 @@
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
-                        android:id="@+id/tvIntroLevel"
+                        android:id="@+id/tvTitleMessage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
@@ -896,7 +901,7 @@
                         android:textSize="70sp"
                         android:textColor="@color/app_color_dark"/>
                     <TextView
-                        android:id="@+id/tvLivesMessage"
+                        android:id="@+id/tvScoreMessage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
@@ -922,6 +927,7 @@
                         android:textColor="@color/white"/>
 
                     <ImageButton
+                        android:id="@+id/share_button"
                         android:layout_width="match_parent"
                         android:layout_height="25dp"
                         android:layout_marginStart="50dp"
