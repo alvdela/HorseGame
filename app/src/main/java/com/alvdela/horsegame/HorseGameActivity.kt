@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.icu.util.TimeUnit
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -51,24 +52,48 @@ class HorseGameActivity : AppCompatActivity() {
 
     private var checkMove = true
     private var gaming = false
+    private var nextLevel = false
 
     private lateinit var board: Array<IntArray>
 
     private var options = 0
     private var moves = 64
+    private var levelMoves = 0
     private var nextBonus = 0
+    private var movesToBonus = 0
     private var bonus = 0
     private var seconds = 0
+    private var lives = 1
+    private var level = 1
+
+    private var LASTLEVEL = 10
+
+    private lateinit var soundMove: MediaPlayer
+    private lateinit var soundBonus: MediaPlayer
+    private lateinit var soundLose: MediaPlayer
+    private lateinit var soundWin: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.horse_game)
+        initSounds()
         startGame()
 
         val shareButton = findViewById<ImageButton>(R.id.share_button)
         shareButton.setOnClickListener{
             shareGame()
         }
+    }
+
+    private fun initSounds() {
+        soundMove = MediaPlayer.create(this, R.raw.chessmove)
+        soundMove.isLooping = false
+        soundBonus = MediaPlayer.create(this, R.raw.bonus)
+        soundBonus.isLooping = false
+        soundLose = MediaPlayer.create(this, R.raw.game_over)
+        soundLose.isLooping = false
+        soundWin = MediaPlayer.create(this, R.raw.winning)
+        soundWin.isLooping = false
     }
 
     private fun shareGame() {
@@ -110,11 +135,186 @@ class HorseGameActivity : AppCompatActivity() {
         //Inicializar tablero
         initScreenGame()
         resetBoard()
-        //Establecer primera posicion
-        setFirstPosition()
-        //Iniciar cronometro
-        resetTime()
-        startTime()
+        //Establecer nivel
+        setLevel()
+        if (level > LASTLEVEL){
+            showMessage("You have beaten the game!!", "Wait for move levels", false)
+        }else{
+            setLevelParameters()
+            setBoardLevel()
+            //Establecer primera posicion
+            progressBar = findViewById(R.id.progressBar)
+            progressBar.max = movesToBonus
+            setFirstPosition()
+            //Iniciar cronometro
+            resetTime()
+            startTime()
+        }
+
+    }
+
+    private fun setLives() {
+        when(this.level){
+            1-> lives = 1
+            2-> lives = 4
+            3-> lives = 3
+            4-> lives = 3
+            5-> lives = 4
+            6-> lives = 3
+            7-> lives = 5
+            8-> lives = 3
+            9-> lives = 4
+            10-> lives = 5
+            11-> lives = 5
+            12-> lives = 3
+        }
+
+        val tvLives = findViewById<TextView>(R.id.tvLivesNumber)
+        tvLives.text = lives.toString()
+    }
+
+    private fun setBoardLevel() {
+
+        when(level){
+            2-> paintColumn(6)
+            3-> {
+                for (i in 0..7){
+                    for (j in 4..7){
+                        board[i][j] = 1
+                        paintHorseCell(i,j,"previous_cell")
+                    }
+                }
+            }
+            4-> {
+                for (i in 0..3){
+                    for (j in 0..3){
+                        board[i][j] = 1
+                        paintHorseCell(i,j,"previous_cell")
+                    }
+                }
+            }
+            5-> {
+                paintColumn(2)
+                paintRow(2)
+            }
+            6-> {
+                for (i in 0..4){
+                    for (j in 3..5){
+                        board[i][j] = 1
+                        paintHorseCell(i,j,"previous_cell")
+                    }
+                }
+            }
+            7-> {
+                paintColumn(3)
+                paintColumn(4)
+            }
+            8-> {
+                paintRow(2)
+                paintRow(6)
+            }
+            9-> {
+                for (i in 4..7){
+                    for (j in 0..4){
+                        board[i][j] = 1
+                        paintHorseCell(i,j,"previous_cell")
+                    }
+                }
+            }
+            10-> {
+                paintRow(2)
+                paintColumn(5)
+                paintRow(6)
+            }
+            12-> {
+                paintColumn(2)
+                for (i in 4..7){
+                    for (j in 0..4){
+                        board[i][j] = 1
+                        paintHorseCell(i,j,"previous_cell")
+                    }
+                }
+
+            }
+        }
+    }
+
+    private fun paintColumn(column: Int) {
+        for (i in 0..7){
+            board[column][i] = 1
+            paintHorseCell(column,i,"previous_cell")
+        }
+    }
+    private fun paintRow(row: Int) {
+        for (i in 0..7){
+            board[i][row] = 1
+            paintHorseCell(i,row,"previous_cell")
+        }
+    }
+
+    private fun setLevelParameters() {
+        val tvLivesData = findViewById<TextView>(R.id.tvLivesNumber)
+        tvLivesData.text = lives.toString()
+
+        val tvLevelNumber = findViewById<TextView>(R.id.tvTitleMessage)
+        tvLevelNumber.text = "Level: ${level.toString()}"
+
+        setLevelMoves()
+        moves = levelMoves
+
+        bonus = 0
+        setMovesToBonus()
+    }
+
+    private fun setMovesToBonus(){
+
+        when(level){
+            1-> movesToBonus = 8
+            2-> movesToBonus = 10
+            3-> movesToBonus = 12
+            4-> movesToBonus = 10
+            5-> movesToBonus = 10
+            6-> movesToBonus = 12
+            7-> movesToBonus = 5
+            8-> movesToBonus = 7
+            9-> movesToBonus = 9
+            10-> movesToBonus = 8
+            11-> movesToBonus = 1000
+            12-> movesToBonus = 5
+        }
+    }
+
+    private fun setLevelMoves() {
+
+        when(this.level){
+            1-> levelMoves = 64
+            2-> levelMoves = 56
+            3-> levelMoves = 32
+            4-> levelMoves = 48
+            5-> levelMoves = 50
+            6-> levelMoves = 49
+            7-> levelMoves = 50
+            8-> levelMoves = 50
+            9-> levelMoves = 44
+            10-> levelMoves = 43
+            11-> levelMoves = 64
+            12-> levelMoves = 37
+        }
+    }
+
+    private fun setLevel() {
+        if (nextLevel){
+            level++
+            setLives()
+        }else{
+            lives--
+            if (lives < 1){
+                level = 1
+                lives = 1
+            }
+        }
+        val levelView = findViewById<TextView>(R.id.levelNumber)
+        levelView.text = level.toString()
     }
 
     /**
@@ -138,8 +338,14 @@ class HorseGameActivity : AppCompatActivity() {
     private fun setFirstPosition() {
         var x = 0
         var y = 0
-        x = Random.nextInt(0,8)
-        y = Random.nextInt(0,8)
+
+        var goodPosition = false
+
+        while (!goodPosition){
+            x = Random.nextInt(0,8)
+            y = Random.nextInt(0,8)
+            if (board[x][y] == 0) goodPosition = true
+        }
 
         cellSelectedX = x
         cellSelectedY = y
@@ -164,6 +370,9 @@ class HorseGameActivity : AppCompatActivity() {
         //Si llegan a la casilla de bonus, incrementamos ese bonus
         if(board[x][y] == 2){
             bonus++
+            soundBonus.start()
+        }else{
+            soundMove.start()
         }
         board[x][y] = 1
 
@@ -188,7 +397,7 @@ class HorseGameActivity : AppCompatActivity() {
             checkNewBonus()
             checkGameOver()
         }else{
-            showMessage("You win!", "Next Level", false)
+            showMessage("You win!", "Next Level", true)
         }
 
     }
@@ -228,6 +437,11 @@ class HorseGameActivity : AppCompatActivity() {
         lyMessage = findViewById(R.id.lyMessage)
         lyMessage.visibility = View.VISIBLE
 
+        nextLevel = win
+        if (win){
+            level++
+        }
+
         val tvTitleMessage = findViewById<TextView>(R.id.tvTitleMessage)
         tvTitleMessage.text = title
 
@@ -242,15 +456,27 @@ class HorseGameActivity : AppCompatActivity() {
         val tvScoreMessage = findViewById<TextView>(R.id.tvScoreMessage)
         tvScoreMessage.text = score
 
+        if (win){
+            soundWin.start()
+        }else{
+            soundLose.start()
+        }
+
         val tvAction = findViewById<TextView>(R.id.tvAction)
         tvAction.text = action
+        if (level < LASTLEVEL){
+            tvAction.setOnClickListener{
+                startGame()
+            }
+        }
+
     }
 
     /**
      * Metodo que comprueba y crea si hay que crear una casilla de bonus
      */
     private fun checkNewBonus() {
-        if(nextBonus == 5){
+        if(nextBonus == movesToBonus){
             var bonusCellX = 0
             var bonusCellY = 0
 
@@ -279,8 +505,7 @@ class HorseGameActivity : AppCompatActivity() {
     private fun printBonusCell(x: Int, y: Int) {
         cell = findViewById(resources.getIdentifier("c$x$y", "id", packageName))
         cell.setImageResource(R.drawable.ic_trophy)
-        progressBar = findViewById(R.id.progressBar)
-        progressBar.progress = nextBonus
+
     }
 
     /**
@@ -366,6 +591,13 @@ class HorseGameActivity : AppCompatActivity() {
                 val width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,widthCell,resources.displayMetrics).toInt()
 
                 cell.layoutParams = TableRow.LayoutParams(width, height)
+                if ((i+j) % 2 == 0){
+                    cell.setBackgroundResource(R.color.black_cell)
+                    cell.setImageResource(R.drawable.empty)
+                }else{
+                    cell.setBackgroundResource(R.color.white_cell)
+                    cell.setImageResource(R.drawable.empty)
+                }
             }
         }
     }
